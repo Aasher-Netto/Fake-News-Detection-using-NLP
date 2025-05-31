@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fake News Detector</title>
+    <script>
+        function fetchNews() {
+            fetch('/get_news')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched News:", data);  // Log full data
+                
+                let dropdown = document.getElementById("newsDropdown");
+        
+                if (!data.articles || data.articles.length === 0) {
+                    console.error("No news articles found!");
+                    return;
+                }
+        
+                // Log each title being added to the dropdown
+                data.articles.forEach(article => {
+                    console.log("Adding to dropdown:", article.title);  // Debugging step
+                    
+                    let option = document.createElement("option");
+                    option.value = article.text;  // Use correct field name
+                    option.text = article.title;  // Display title in dropdown
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching news:", error));  // Log any fetch errors
+        }
+        
+        window.onload = fetchNews;
+        </script>
+</head>
+<body>
+    <h2>Select or Enter News Text</h2>
+    
+    <!-- Dropdown for Selecting News Articles -->
+    <select id="newsDropdown" onchange="showSelectedNews()">
+        <option value="">Select a News Article</option>
+    </select>
+
+    <form action="/predict" method="post">
+        <!-- Textarea to Show Selected News or Allow Manual Input -->
+        <textarea id="newsText" name="news" rows="6" cols="60"></textarea><br><br>
+        <input type="submit" value="Check">
+    </form>
+
+    {% if prediction %}
+        <h3>Prediction: {{ prediction }}</h3>
+    {% endif %}
+</body>
+</html>
